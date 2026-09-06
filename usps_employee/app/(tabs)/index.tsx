@@ -16,18 +16,35 @@ const timeOfDay =
         employeeId: "12345"
       }
 
+      const station: Station = {
+        name: "Midtown"
+      }
+
 
 export default function HomeScreen() {
   return (
     <View style={styles.container}>
-      <Text style={styles.greeting}>Good {timeOfDay}, {sam.name}</Text>
+      <Text style={[styles.greeting]}>Good {timeOfDay}, {sam.name}</Text>
+      
+      <View style={styles.today}>
+        <Text style={styles.label}>TODAY:</Text>
+        <Text>BT: {mockSchedule?.[0]?.BT ?? "N/A"}</Text>
+        <Text>Station: {station.name}</Text>
+      </View>
 
-    
+      <View style= {styles.today}>
+        <Text style={styles.label}>TOMORROW:</Text>
+        <Text>{mockSchedule[1].NS ? "NS" : mockSchedule[1].BT}</Text>
+        <Text>Station: {station.name}</Text>
+      </View>
+      
+
    <View style={styles.table}>
       <View style={styles.row}>
+        <Text>This Week Schedule</Text>
 
-{mockSchedule.map((shift) => (
-    <View style={styles.cell} key={shift.date}>
+{mockSchedule?.map((shift,index) => (
+    <View style={styles.cell} key={`${shift.date}-${index}`}>
       <Text style={styles.date}>{shift.date}</Text>
       <Text style={styles.bt}>{shift.NS ? "NS" : shift.BT}</Text>
     </View>
@@ -42,18 +59,20 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: "center",
     padding: 24,
   },
 
   greeting: {
     fontSize: 22,
     fontWeight: "600",
-    marginBottom: 16,
+    marginBottom: 20,
   },
   table: {
+    flex: 1,
+    justifyContent: "center",
     width: "100%",
     borderWidth: 1,
+    alignItems: "center",
   },
 
   row: {
@@ -77,4 +96,10 @@ const styles = StyleSheet.create({
     marginTop: 8,
     fontSize: 14,
   },
+  today: {
+    padding: 16,
+    borderWidth: 1,
+    borderRadius: 8,
+    marginBottom: 16,
+  }
 });
