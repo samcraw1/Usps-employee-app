@@ -19,6 +19,7 @@ const timeOfDay =
       const station: Station = {
         name: "Midtown"
       }
+const uploadedTime = new Date().toLocaleTimeString();
 
 
 export default function HomeScreen() {
@@ -38,10 +39,9 @@ export default function HomeScreen() {
         <Text>Station: {station.name}</Text>
       </View>
       
-
+  <Text style={styles.label}>This week:</Text>
    <View style={styles.table}>
       <View style={styles.row}>
-        <Text>This Week Schedule</Text>
 
 {mockSchedule?.map((shift,index) => (
     <View style={styles.cell} key={`${shift.date}-${index}`}>
@@ -50,8 +50,11 @@ export default function HomeScreen() {
     </View>
   ))}
   
+    </View>
   </View>
-</View>
+  <Text style={styles.uploadedTime}>schedule updated at {uploadedTime}</Text>
+  <Text style={styles.label}>Announcements</Text>
+  <Text style={styles.announcement}>No new announcements.</Text>
 </View>
   );
 }
@@ -68,8 +71,6 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   table: {
-    flex: 1,
-    justifyContent: "center",
     width: "100%",
     borderWidth: 1,
     alignItems: "center",
@@ -83,6 +84,7 @@ const styles = StyleSheet.create({
   cell: {
     flex: 1,
     borderRightWidth: 1,
+    borderBottomWidth: 1,
     paddingVertical: 12,
     alignItems: "center",
   },
@@ -90,6 +92,9 @@ const styles = StyleSheet.create({
   date: {
     fontWeight: "bold",
     fontSize: 12,
+    borderBottomWidth: 2,
+    paddingBottom: 4,
+    width: "100%",
   },
 
   bt: {
@@ -101,5 +106,15 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 8,
     marginBottom: 16,
+  },
+  uploadedTime: {
+    marginTop: 16,
+    fontSize: 12,
+    color: "gray",
+  },
+  announcement: {
+    fontSize: 14,
+    color: "gray",
+    
   }
 });
