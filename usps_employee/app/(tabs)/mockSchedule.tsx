@@ -9,7 +9,7 @@ export const mockSchedule: Shift[] = [
 
     {
         BT: "0900",
-        NS: false,
+        NS: true,
         date: "06/11"
     },
     {
@@ -23,7 +23,7 @@ export const mockSchedule: Shift[] = [
         date: "06/13"
     },
     {
-        BT: "1200",
+        BT: "1000",
         NS: false,
         date: "06/14"
     },

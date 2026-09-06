@@ -10,22 +10,41 @@ const tintColorDark = '#fff';
 
 export const Colors = {
   light: {
-    text: '#11181C',
-    background: '#fff',
-    tint: tintColorLight,
-    icon: '#687076',
-    tabIconDefault: '#687076',
-    tabIconSelected: tintColorLight,
-  },
-  dark: {
-    text: '#ECEDEE',
-    background: '#151718',
-    tint: tintColorDark,
-    icon: '#9BA1A6',
-    tabIconDefault: '#9BA1A6',
-    tabIconSelected: tintColorDark,
-  },
-};
+      text: '#11181C',
+      background: '#fff',
+      tint: tintColorLight,
+      icon: '#687076',
+      tabIconDefault: '#687076',
+      tabIconSelected: tintColorLight,
+    },
+    dark: {
+      text: '#ECEDEE',
+      background: '#151718',
+      tint: tintColorDark,
+      icon: '#9BA1A6',
+      tabIconDefault: '#9BA1A6',
+      tabIconSelected: tintColorDark,
+    },
+  };
+
+
+  export const Palette ={
+     blue: "#004B87",
+    red: "#DA291C",
+    text: "#1A1A1A",
+    textMuted: "#6B7280",
+    border: "#E5E7EB",
+    background: "#82b4ff",
+    card: "#FFFFFF",
+  }
+
+  export const shadow = {
+    shadowColor: "#000",
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 2 },
+    elevation: 2,
+  }
 
 export const Fonts = Platform.select({
   ios: {
