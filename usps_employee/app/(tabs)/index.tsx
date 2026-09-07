@@ -1,5 +1,5 @@
 import { StyleSheet, Text, View, ScrollView } from "react-native";
-import type { Employee, Station, Shift } from "./types.js";
+import type { Station } from "./types";
 import { mockSchedule } from "./mockSchedule";
 import { Palette, shadow } from "../../constants/theme";
 
@@ -87,10 +87,11 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     marginBottom: 20,
   },
-  table: {
-    width: "100%",
-    borderWidth: 1,
-    alignItems: "center",
+  label: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: Palette.text,
+    marginBottom: 8,
   },
 
   row: {

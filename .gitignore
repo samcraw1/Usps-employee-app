@@ -1,0 +1,11 @@
+# macOS
+.DS_Store
+
+# IntelliJ IDEA — per-machine project config
+.idea/
+
+# IntelliJ compiler output
+out/
+
+# Local Claude Code settings
+.claude/settings.local.json

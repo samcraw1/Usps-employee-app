@@ -1,4 +1,4 @@
-import type { Employee, Station, Shift } from "./types.js";
+import type { Shift } from "./types";
 
 export const mockSchedule: Shift[] = [
     {

@@ -6,11 +6,7 @@ export type Employee = {
 
 export type Shift = {
     BT: string;
-    NS: true;
-    date: string;
-} | {
-    BT: string;
-    NS: false;
+    NS: boolean;
     date: string;
 }
 
