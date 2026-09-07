@@ -24,7 +24,7 @@ export const mockSchedule: Shift[] = [
     },
     {
         BT: "1000",
-        NS: false,
+        NS: true,
         date: "06/14"
     },
     {
