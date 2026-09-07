@@ -1,0 +1,12 @@
+### Add a schedule (keys must be BT and NS, matching getBT/isNS; NS is required)
+POST http://localhost:8080/api/schedules
+Content-Type: application/json
+
+{
+  "BT": "08:00",
+  "NS": false,
+  "date": "2026-09-06"
+}
+
+### List all schedules
+GET http://localhost:8080/api/schedules
