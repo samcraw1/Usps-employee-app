@@ -4,8 +4,10 @@ import {
   ScrollView,
   StyleSheet,
   Text,
+  TextInput,
   View,
 } from "react-native";
+import { useRouter } from "expo-router";
 import { API_BASE } from "../../constants/api";
 import { Palette, shadow } from "../../constants/theme";
 
@@ -15,15 +17,48 @@ type EmployeeResponse = {
   name: string;
 };
 
-export const handleLogout = () => {
-  console.log("Logging out");
-}
-
 export default function Profile() {
+  const router = useRouter();
   const [username, setUsername] = useState("");
   const [error, setError] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [status, setStatus] = useState("");
 
-  useEffect(() => {
+  // Nothing to invalidate on the server yet: sign-in is still a hardcoded
+  // string comparison, so there is no session or token. replace() rather than
+  // push() so the back gesture cannot return to the tabs after logging out.
+  const handleLogout = () => {
+    router.replace("/sign-in");
+  };
+
+  const changePassword = () => {
+    if (!newPassword) {
+      setStatus("Enter a new password first.");
+      return;
+    }
+
+    // The backend returns 204 with no body, so there is nothing to parse.
+    fetch(`${API_BASE}/api/employees/1/password`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ password: newPassword }),
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`Request failed with ${response.status}`);
+        }
+        setStatus("Password updated.");
+        setNewPassword("");
+      })
+      .catch((requestError) => {
+        console.error("Change password failed:", requestError);
+        setStatus("Could not update your password.");
+      });
+  };
+
+useEffect(() => {
     // Guards against setting state after the screen unmounts, which happens
     // if you tab away before the request lands.
     let cancelled = false;
@@ -57,6 +92,25 @@ export default function Profile() {
         <Text style={styles.title}>Profile </Text>
         <Text style={styles.label}>Username: {username}</Text>
         {error ? <Text style={styles.error}>{error}</Text> : null}
+
+        <Text style={styles.label}>New password</Text>
+        <TextInput
+          style={styles.input}
+          value={newPassword}
+          onChangeText={setNewPassword}
+          secureTextEntry
+          autoCapitalize="none"
+          placeholder="New password"
+          placeholderTextColor={Palette.textMuted}
+        />
+        {status ? <Text style={styles.error}>{status}</Text> : null}
+
+        <Pressable
+          style={({ pressed }) => [styles.button, pressed && styles.buttonPressed]}
+          onPress={changePassword}
+        >
+          <Text style={styles.buttonText}>Change Password</Text>
+        </Pressable>
         <Pressable
           style={({ pressed }) => [styles.button, pressed && styles.buttonPressed]}
           onPress={handleLogout}

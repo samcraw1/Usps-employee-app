@@ -33,4 +33,22 @@ public class EmployeeController {
     public Employee addEmployee(@RequestBody Employee employee) {
         return employeeRepository.save(employee);
     }
+
+    public record PasswordChangeRequest(String password) {
+    }
+
+    @PatchMapping("/{id}/password")
+    public ResponseEntity<Void> changePassword(@PathVariable Long id,
+                                              @RequestBody PasswordChangeRequest request) {
+        if (request.password() == null || request.password().isBlank()) {
+            return ResponseEntity.badRequest().build();
+        }
+        return employeeRepository.findById(id)
+                .map(employee -> {
+                    employee.setPassword(request.password());
+                    employeeRepository.save(employee);
+                    return ResponseEntity.noContent().<Void>build();
+                })
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
 }
