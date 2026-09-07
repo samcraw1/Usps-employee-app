@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import {
+  Modal,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -23,12 +24,21 @@ export default function Profile() {
   const [error, setError] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [status, setStatus] = useState("");
+  const [promptVisible, setPromptVisible] = useState(false);
 
   // Nothing to invalidate on the server yet: sign-in is still a hardcoded
   // string comparison, so there is no session or token. replace() rather than
   // push() so the back gesture cannot return to the tabs after logging out.
   const handleLogout = () => {
     router.replace("/sign-in");
+  };
+
+  // Opens the popup on a clean slate, so a stale message from a previous
+  // attempt is not sitting there when it appears.
+  const openPrompt = () => {
+    setNewPassword("");
+    setStatus("");
+    setPromptVisible(true);
   };
 
   const changePassword = () => {
@@ -51,6 +61,7 @@ export default function Profile() {
         }
         setStatus("Password updated.");
         setNewPassword("");
+        setPromptVisible(false);
       })
       .catch((requestError) => {
         console.error("Change password failed:", requestError);
@@ -93,21 +104,9 @@ useEffect(() => {
         <Text style={styles.label}>Username: {username}</Text>
         {error ? <Text style={styles.error}>{error}</Text> : null}
 
-        <Text style={styles.label}>New password</Text>
-        <TextInput
-          style={styles.input}
-          value={newPassword}
-          onChangeText={setNewPassword}
-          secureTextEntry
-          autoCapitalize="none"
-          placeholder="New password"
-          placeholderTextColor={Palette.textMuted}
-        />
-        {status ? <Text style={styles.error}>{status}</Text> : null}
-
         <Pressable
           style={({ pressed }) => [styles.button, pressed && styles.buttonPressed]}
-          onPress={changePassword}
+          onPress={openPrompt}
         >
           <Text style={styles.buttonText}>Change Password</Text>
         </Pressable>
@@ -118,6 +117,49 @@ useEffect(() => {
           <Text style={styles.buttonText}>Log Out</Text>
         </Pressable>
       </View>
+
+      <Modal
+        visible={promptVisible}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setPromptVisible(false)}
+      >
+        <View style={styles.backdrop}>
+          <View style={styles.card}>
+            
+
+            <Text style={styles.label}>New password</Text>
+            <TextInput
+              style={styles.input}
+              value={newPassword}
+              onChangeText={setNewPassword}
+              secureTextEntry
+              autoCapitalize="none"
+              autoFocus
+              placeholder="enter new password"
+              placeholderTextColor={Palette.textMuted}
+              onSubmitEditing={changePassword}
+              returnKeyType="go"
+            />
+
+            {status ? <Text style={styles.error}>{status}</Text> : null}
+
+            <Pressable
+              style={({ pressed }) => [styles.button, pressed && styles.buttonPressed]}
+              onPress={changePassword}
+            >
+              <Text style={styles.buttonText}>Save</Text>
+            </Pressable>
+
+            <Pressable
+              style={styles.cancel}
+              onPress={() => setPromptVisible(false)}
+            >
+              <Text style={styles.cancelText}>Cancel</Text>
+            </Pressable>
+          </View>
+        </View>
+      </Modal>
     </ScrollView>
   );
 }
@@ -128,6 +170,21 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     padding: 24,
     backgroundColor: Palette.background,
+  },
+  backdrop: {
+    flex: 1,
+    justifyContent: "center",
+    padding: 24,
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+  },
+  cancel: {
+    paddingVertical: 14,
+    alignItems: "center",
+  },
+  cancelText: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: Palette.textMuted,
   },
   card: {
     padding: 24,
