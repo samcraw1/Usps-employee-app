@@ -13,10 +13,7 @@ const timeOfDay =
       ? 'afternoon'
       : 'evening';
 
-      const sam: Employee = {
-        name: "Sam",
-        employeeId: "12345"
-      }
+
 
       const station: Station = {
         name: "Midtown"
@@ -29,7 +26,7 @@ export default function HomeScreen() {
    
     <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
     <View style={styles.container}>
-      <Text style={[styles.greeting]}>Good {timeOfDay}, {sam.name}</Text>
+      <Text style={[styles.greeting]}>Good {timeOfDay}, Sam</Text>
       
       <View style={styles.boxContainer}>
         <Text style={styles.label}>TODAY:</Text>
