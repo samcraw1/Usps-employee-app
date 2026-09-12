@@ -1,17 +1,17 @@
-import React, { useEffect, useState } from "react";
-import ProfileIconProp from "../../components/ui/ProfileIconProp";
-import {
-  Modal,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-} from "react-native";
+import { useEffect, useState } from "react";
+import { Alert, Modal, StyleSheet, Text, View } from "react-native";
 import { useRouter } from "expo-router";
-import { API_BASE } from "../../constants/api";
-import { Palette, shadow } from "../../constants/theme";
+
+import ProfileIconProp from "@/components/ui/ProfileIconProp";
+import { Banner } from "@/components/ui/banner";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Field } from "@/components/ui/field";
+import { ListRow, RowGroup } from "@/components/ui/list-row";
+import { Screen } from "@/components/ui/screen";
+import { SectionHeader } from "@/components/ui/section-header";
+import { API_BASE } from "@/constants/api";
+import { Palette, spacing, type } from "@/constants/theme";
 
 // Shape of what GET /api/employees/:id returns, mirroring Employee.java.
 type EmployeeResponse = {
@@ -19,7 +19,7 @@ type EmployeeResponse = {
   name: string;
 };
 
-
+const PASSWORD_UPDATED = "Password updated.";
 
 export default function Profile() {
   const router = useRouter();
@@ -62,7 +62,7 @@ export default function Profile() {
         if (!response.ok) {
           throw new Error(`Request failed with ${response.status}`);
         }
-        setStatus("Password updated.");
+        setStatus(PASSWORD_UPDATED);
         setNewPassword("");
         setPromptVisible(false);
       })
@@ -73,11 +73,14 @@ export default function Profile() {
   };
 
   const handleNotifications = () => {
-    console.log("Notifications button pressed");
+    Alert.alert("Notifications", "Turn on notifications to stay updated.", [
+      { text: "Cancel", style: "cancel" },
+      { text: "Turn On", onPress: () => console.log("enabled") },
+    ]);
   };
 
   const handleHelp = () => {
-    console.log("Help button pressed");
+    router.push("/help");
   };
 
   useEffect(() => {
@@ -108,41 +111,51 @@ export default function Profile() {
     };
   }, []);
 
-  return (
-    <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-      <View style={styles.container}>
-        <Text style={styles.title}>Profile </Text>
-        <ProfileIconProp />
-        <Text style={styles.username}>Username: {username}</Text>
-        {error ? <Text style={styles.error}>{error}</Text> : null}
+  // The success message arrives as the modal closes, so it belongs on the
+  // screen; everything else in `status` is a failure shown inside the modal.
+  const passwordUpdated = status === PASSWORD_UPDATED;
 
-      <View style={styles.actions}>
-        <Pressable
-          style={({ pressed }) => [styles.button, pressed && styles.buttonPressed]}
-          onPress={openPrompt}
-        >
-          <Text style={styles.buttonText}>Change Password</Text>
-        </Pressable>
-        <Pressable
-          style={({ pressed }) => [styles.button, pressed && styles.buttonPressed]}
-          onPress={handleLogout}
-        >
-          <Text style={styles.buttonText}>Log Out</Text>
-        </Pressable>
-         <Pressable
-          style={({ pressed }) => [styles.button, pressed && styles.buttonPressed]}
-          onPress={handleNotifications}
-        >
-          <Text style={styles.buttonText}>Notifications</Text>
-        </Pressable>
-        <Pressable
-          style={({ pressed }) => [styles.button, pressed && styles.buttonPressed]}
-          onPress={handleHelp}
-        >
-          <Text style={styles.buttonText}>Help</Text>
-        </Pressable>
+  return (
+    <Screen
+      header={
+        <View style={styles.identity}>
+          <ProfileIconProp size={72} color={Palette.textOnBlue} />
+          <Text style={styles.name}>
+            {username || (error ? "Employee" : "Loading…")}
+          </Text>
+          <Text style={styles.role}>Letter Carrier · Midtown Station</Text>
         </View>
-      </View>
+      }
+    >
+      {error ? <Banner tone="error" message={error} /> : null}
+      {passwordUpdated ? <Banner tone="success" message={status} /> : null}
+
+      <SectionHeader title="Account" />
+
+      <RowGroup>
+        <ListRow
+          label="Change password"
+          icon="lock-closed-outline"
+          onPress={openPrompt}
+        />
+        <ListRow
+          label="Notifications"
+          icon="notifications-outline"
+          onPress={handleNotifications}
+        />
+        <ListRow
+          label="Help"
+          icon="help-circle-outline"
+          onPress={handleHelp}
+        />
+      </RowGroup>
+
+      <Button
+        variant="destructive"
+        label="Log out"
+        onPress={handleLogout}
+        style={styles.logout}
+      />
 
       <Modal
         visible={promptVisible}
@@ -151,124 +164,65 @@ export default function Profile() {
         onRequestClose={() => setPromptVisible(false)}
       >
         <View style={styles.backdrop}>
-          <View style={styles.card}>
-            
+          <Card style={styles.modalCard}>
+            <Text style={styles.modalTitle}>Change password</Text>
 
-            <Text style={styles.label}>New password</Text>
-            <TextInput
-              style={styles.input}
+            <Field
+              label="New password"
               value={newPassword}
               onChangeText={setNewPassword}
               secureTextEntry
               autoCapitalize="none"
               autoFocus
-              placeholder="enter new password"
-              placeholderTextColor={Palette.textMuted}
+              placeholder="Enter new password"
               onSubmitEditing={changePassword}
               returnKeyType="go"
             />
 
-            {status ? <Text style={styles.error}>{status}</Text> : null}
+            {status && !passwordUpdated ? (
+              <Banner tone="error" message={status} />
+            ) : null}
 
-            <Pressable
-              style={({ pressed }) => [styles.button, pressed && styles.buttonPressed]}
-              onPress={changePassword}
-            >
-              <Text style={styles.buttonText}>Save</Text>
-            </Pressable>
-
-            <Pressable
-              style={styles.cancel}
+            <Button label="Save" onPress={changePassword} />
+            <Button
+              variant="secondary"
+              label="Cancel"
               onPress={() => setPromptVisible(false)}
-            >
-              <Text style={styles.cancelText}>Cancel</Text>
-            </Pressable>
-          </View>
+            />
+          </Card>
         </View>
       </Modal>
-    </ScrollView>
+    </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: "center",
-    padding: 24,
-    backgroundColor: Palette.background,
+  identity: {
+    alignItems: "center",
+    gap: spacing.sm,
+  },
+  name: {
+    ...type.h2,
+    color: Palette.textOnBlue,
+  },
+  role: {
+    ...type.label,
+    color: Palette.textOnBlueMuted,
+  },
+  logout: {
+    marginTop: spacing.sm,
   },
   backdrop: {
     flex: 1,
     justifyContent: "center",
-    padding: 24,
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    padding: spacing.xl,
+    backgroundColor: Palette.scrim,
   },
-  cancel: {
-    paddingVertical: 14,
-    alignItems: "center",
+  modalCard: {
+    gap: spacing.lg,
   },
-  cancelText: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: Palette.textMuted,
-  },
-  card: {
-    padding: 24,
-    borderWidth: 1,
-    borderColor: Palette.border,
-    borderRadius: shadow.shadowRadius,
-    backgroundColor: Palette.card,
-  },
-  title: {
-    fontSize: 22,
-    fontWeight: "600",
+  modalTitle: {
+    ...type.h2,
     color: Palette.text,
-    marginBottom: 20,
   },
-  label: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: Palette.text,
-    marginBottom: 8,
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: Palette.border,
-    borderRadius: shadow.shadowRadius,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    fontSize: 14,
-    color: Palette.text,
-    marginBottom: 16,
-  },
-  error: {
-    fontSize: 14,
-    color: Palette.red,
-    marginBottom: 16,
-  },
-  button: {
-    backgroundColor: Palette.blue,
-    borderRadius: shadow.shadowRadius,
-    paddingVertical: 14,
-    alignItems: "center",
-  },
-  buttonPressed: {
-    opacity: 0.8,
-  },
-  buttonText: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: Palette.card,
-  },
-  username: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: Palette.text,
-    marginBottom: 8,
-    textAlign: "center",
-  },
-  actions: {
-    gap: 12,
-  },
-
 });

@@ -13,12 +13,15 @@ type IconSymbolName = keyof typeof MAPPING;
  * - see Material Icons in the [Icons Directory](https://icons.expo.fyi).
  * - see SF Symbols in the [SF Symbols](https://developer.apple.com/sf-symbols/) app.
  */
+// `satisfies` rather than `as`: a cast here widens the key type to every SF
+// Symbol name, which is what silently let `person.fill` and
+// `questionmark.circle.fill` render as blank icons on Android and web.
 const MAPPING = {
   'house.fill': 'home',
-  'paperplane.fill': 'send',
-  'chevron.left.forwardslash.chevron.right': 'code',
+  'person.fill': 'person',
+  'questionmark.circle.fill': 'help',
   'chevron.right': 'chevron-right',
-} as IconMapping;
+} as const satisfies Partial<IconMapping>;
 
 /**
  * An icon component that uses native SF Symbols on iOS, and Material Icons on Android and web.

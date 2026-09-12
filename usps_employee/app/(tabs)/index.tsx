@@ -1,150 +1,232 @@
-import { StyleSheet, Text, View, ScrollView } from "react-native";
-import type { Station } from "./types";
-import { mockSchedule } from "./mockSchedule";
-import { Palette, shadow } from "../../constants/theme";
+import { Ionicons } from "@expo/vector-icons";
+import { StyleSheet, Text, View } from "react-native";
 
+import { Card } from "@/components/ui/card";
+import { Screen } from "@/components/ui/screen";
+import { SectionHeader } from "@/components/ui/section-header";
+import { mockSchedule } from "@/constants/mock-schedule";
+import type { Station } from "@/constants/schedule-types";
+import { Palette, radius, spacing, type } from "@/constants/theme";
 
-const hour = new Date().getHours();
+const station: Station = {
+  name: "Midtown",
+};
 
-const timeOfDay =
-  hour < 12
-    ? 'morning'
-    : hour < 18
-      ? 'afternoon'
-      : 'evening';
+/** "0800" -> "08:00". Begin-tour times arrive as four digits. */
+function formatTour(bt: string | undefined) {
+  if (!bt || bt.length !== 4) {
+    return "—";
+  }
+  return `${bt.slice(0, 2)}:${bt.slice(2)}`;
+}
 
+type ShiftCardProps = {
+  when: string;
+  bt: string | undefined;
+  isOff: boolean;
+};
 
+function ShiftCard({ when, bt, isOff }: ShiftCardProps) {
+  return (
+    <Card>
+      <View style={styles.shiftRow}>
+        <View style={styles.shiftMain}>
+          <Text style={styles.shiftWhen}>{when}</Text>
+          {isOff ? (
+            <View style={styles.offPill}>
+              <Text style={styles.offPillText}>Non-scheduled</Text>
+            </View>
+          ) : (
+            <>
+              <Text style={styles.shiftTime}>{formatTour(bt)}</Text>
+              <Text style={styles.shiftCaption}>Begin tour</Text>
+            </>
+          )}
+        </View>
 
-      const station: Station = {
-        name: "Midtown"
-      }
-const uploadedTime = new Date().toLocaleTimeString();
-
+        <View style={styles.shiftMeta}>
+          <Text style={styles.shiftMetaLabel}>Station</Text>
+          <Text style={styles.shiftMetaValue}>{station.name}</Text>
+        </View>
+      </View>
+    </Card>
+  );
+}
 
 export default function HomeScreen() {
+  // Computed per render, not at module import — otherwise the greeting and the
+  // "updated" timestamp freeze at whatever they were when the app launched.
+  const hour = new Date().getHours();
+  const timeOfDay = hour < 12 ? "morning" : hour < 18 ? "afternoon" : "evening";
+  const uploadedTime = new Date().toLocaleTimeString([], {
+    hour: "numeric",
+    minute: "2-digit",
+  });
+
+  const today = mockSchedule?.[0];
+  const tomorrow = mockSchedule?.[1];
+
   return (
-   
-    <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-    <View style={styles.container}>
-      <Text style={[styles.greeting]}>Good {timeOfDay}, Sam</Text>
-      
-      <View style={styles.boxContainer}>
-        <Text style={styles.label}>TODAY:</Text>
-        <Text>BT: {mockSchedule?.[0]?.BT ?? "N/A"}</Text>
-        <Text>Station: {station.name}</Text>
-      </View>
+    <Screen
+      title={`Good ${timeOfDay}, Sam`}
+      subtitle={`${station.name} Station`}
+    >
+      <SectionHeader title="Your shifts" />
 
-      <View style= {styles.boxContainer}>
-        <Text style={styles.label}>TOMORROW:</Text>
-        <Text>{mockSchedule[1].NS ? "NS" : mockSchedule[1].BT}</Text>
-        <Text>Station: {station.name}</Text>
-      </View>
-      
-  <Text style={styles.label}>This week:</Text>
-   <View style={styles.tableBox}>
-      <View style={styles.row}>
+      <ShiftCard
+        when="Today"
+        bt={today?.BT}
+        isOff={today?.NS ?? false}
+      />
+      <ShiftCard
+        when="Tomorrow"
+        bt={tomorrow?.BT}
+        isOff={tomorrow?.NS ?? false}
+      />
 
-{mockSchedule?.map((shift,index) => (
-    <View style={styles.cell} key={`${shift.date}-${index}`}>
-      <Text style={styles.date}>{shift.date}</Text>
-      <Text style={styles.bt}>{shift.NS ? "NS" : shift.BT}</Text>
-    </View>
-  ))}
-  
-    </View>
-  </View>
-  <Text style={styles.uploadedTime}>schedule updated at {uploadedTime}</Text>
-  <View style={{ flex: 1 }}/>
-  <View style={{
-    flex: 1,
-    justifyContent: "flex-end",
-    paddingBottom: 16,
-  }}>
-    <View style={{
-      padding: 16,
-      borderWidth: 1,
-      borderRadius: shadow.shadowRadius
-    }}>
-      <Text style={styles.annoucementHeader}>Announcements</Text>
-      <Text style={styles.announcementText}>No new announcements.</Text>
-    </View>
-  </View>
-</View>
-</ScrollView>
+      <SectionHeader title="This week" />
+
+      <Card padded={false}>
+        <View style={styles.week}>
+          {mockSchedule?.map((shift, index) => (
+            <View
+              style={[
+                styles.cell,
+                index < mockSchedule.length - 1 && styles.cellDivider,
+              ]}
+              key={`${shift.date}-${index}`}
+            >
+              <View style={styles.cellHead}>
+                <Text style={styles.cellDate}>{shift.date.slice(3)}</Text>
+              </View>
+              <Text style={[styles.cellValue, shift.NS && styles.cellValueOff]}>
+                {shift.NS ? "NS" : shift.BT.slice(0, 2)}
+              </Text>
+            </View>
+          ))}
+        </View>
+      </Card>
+
+      <Text style={styles.updated}>Updated {uploadedTime}</Text>
+
+      <SectionHeader title="Announcements" />
+
+      <Card>
+        <View style={styles.announcement}>
+          <View style={styles.announcementIcon}>
+            <Ionicons name="megaphone-outline" size={18} color={Palette.blue} />
+          </View>
+          <Text style={styles.announcementText}>Nothing new today.</Text>
+        </View>
+      </Card>
+    </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 24,
-    backgroundColor: Palette.background,
-   
-  },
-
-  greeting: {
-    fontSize: 22,
-    fontWeight: "600",
-    marginBottom: 20,
-  },
-  label: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: Palette.text,
-    marginBottom: 8,
-  },
-
-  row: {
+  shiftRow: {
     flexDirection: "row",
-    width: "100%",
+    alignItems: "flex-start",
+  },
+  shiftMain: {
+    flex: 1,
+  },
+  shiftWhen: {
+    ...type.label,
+    color: Palette.textMuted,
+    marginBottom: spacing.xs,
+  },
+  shiftTime: {
+    ...type.h1,
+    ...type.tabular,
+    color: Palette.blue,
+  },
+  shiftCaption: {
+    ...type.caption,
+    color: Palette.textMuted,
+  },
+  offPill: {
+    alignSelf: "flex-start",
+    backgroundColor: Palette.blueTint,
+    borderRadius: radius.pill,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.xs + 2,
+    marginTop: spacing.xs,
+  },
+  offPillText: {
+    ...type.title,
+    color: Palette.blue,
+  },
+  shiftMeta: {
+    alignItems: "flex-end",
+  },
+  shiftMetaLabel: {
+    ...type.caption,
+    color: Palette.textMuted,
+  },
+  shiftMetaValue: {
+    ...type.body,
+    color: Palette.text,
   },
 
+  week: {
+    flexDirection: "row",
+  },
   cell: {
     flex: 1,
-    borderRightWidth: 1,
-    paddingVertical: 12,
     alignItems: "center",
   },
-
-  date: {
-    fontWeight: "bold",
-    fontSize: 12,
-    borderBottomWidth: 2,
-    paddingBottom: 4,
+  cellDivider: {
+    borderRightWidth: StyleSheet.hairlineWidth,
+    borderRightColor: Palette.divider,
+  },
+  cellHead: {
     width: "100%",
+    alignItems: "center",
+    backgroundColor: Palette.blueTint,
+    paddingVertical: spacing.sm,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: Palette.border,
+  },
+  cellDate: {
+    ...type.caption,
+    ...type.tabular,
+    fontWeight: "600",
+    color: Palette.blue,
+  },
+  cellValue: {
+    ...type.body,
+    ...type.tabular,
+    color: Palette.text,
+    paddingVertical: spacing.md,
+  },
+  cellValueOff: {
+    color: Palette.red,
+    fontWeight: "600",
   },
 
-  bt: {
-    marginTop: 8,
-    fontSize: 14,
-  },
-  boxContainer: {
-    padding: 16,
-    borderWidth: 1,
-    borderRadius: shadow.shadowRadius,
-    marginBottom: 16,
-    backgroundColor: Palette.card,
-  },
-  tableBox: {
-    borderWidth: 1,
-    borderRadius: shadow.shadowRadius,
-    marginBottom: 16,
-    overflow: "hidden",
-    backgroundColor: Palette.card,
-  },
-  uploadedTime: {
-    marginTop: 16,
-    fontSize: 12,
+  updated: {
+    ...type.caption,
     color: Palette.textMuted,
+    textAlign: "center",
+    marginTop: -spacing.sm,
+  },
+
+  announcement: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.md,
+  },
+  announcementIcon: {
+    width: 36,
+    height: 36,
+    borderRadius: radius.pill,
+    backgroundColor: Palette.blueTint,
+    alignItems: "center",
+    justifyContent: "center",
   },
   announcementText: {
-    fontSize: 14,
+    ...type.body,
     color: Palette.textMuted,
   },
-  annoucementHeader: {
-    fontSize: 16,
-    fontWeight: "bold",
-    marginTop: 16,
-  }
-
 });

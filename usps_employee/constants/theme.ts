@@ -1,72 +1,94 @@
 /**
- * Below are the colors that are used in the app. The colors are defined in the light and dark mode.
- * There are many other ways to style your app. For example, [Nativewind](https://www.nativewind.dev/), [Tamagui](https://tamagui.dev/), [unistyles](https://reactnativeunistyles.vercel.app), etc.
+ * Design tokens for the app. Screens should never hardcode a color, radius,
+ * spacing value, or font size — pull it from here so the four screens stay in
+ * step with each other.
+ *
+ * The app is light-only. `app.json` pins `userInterfaceStyle` to "light"
+ * because there is no dark palette to switch to.
  */
 
-import { Platform } from 'react-native';
+import type { TextStyle } from "react-native";
 
-const tintColorLight = '#0a7ea4';
-const tintColorDark = '#fff';
+export const Palette = {
+  // USPS brand. Blue carries the chrome (header bars, primary actions); red is
+  // reserved for destructive actions and errors so it keeps its warning value.
+  blue: "#004B87",
+  blueDark: "#00365F",
+  blueTint: "#E7EEF5",
 
-export const Colors = {
-  light: {
-      text: '#11181C',
-      background: '#fff',
-      tint: tintColorLight,
-      icon: '#687076',
-      tabIconDefault: '#687076',
-      tabIconSelected: tintColorLight,
-    },
-    dark: {
-      text: '#ECEDEE',
-      background: '#151718',
-      tint: tintColorDark,
-      icon: '#9BA1A6',
-      tabIconDefault: '#9BA1A6',
-      tabIconSelected: tintColorDark,
-    },
-  };
+  red: "#DA291C",
+  redTint: "#FDECEA",
 
+  success: "#1E7B34",
+  successTint: "#EAF6EC",
 
-  export const Palette ={
-     blue: "#004B87",
-    red: "#DA291C",
-    text: "#1A1A1A",
-    textMuted: "#6B7280",
-    border: "#E5E7EB",
-    background: "#82b4ff",
-    card: "#FFFFFF",
-  }
+  // Surfaces. `background` is a cool institutional grey rather than a tinted
+  // blue, so white cards read as raised and text contrast is predictable.
+  background: "#F2F4F7",
+  card: "#FFFFFF",
 
-  export const shadow = {
-    shadowColor: "#000",
-    shadowOpacity: 0.08,
+  // Text. `textMuted` is darker than a typical placeholder grey on purpose:
+  // #6B7280 only reaches 4.39:1 against `background`, which fails AA.
+  text: "#1A1A1A",
+  textMuted: "#4B5563",
+  textOnBlue: "#FFFFFF",
+  textOnBlueMuted: "#C7D8E6",
+
+  // Lines.
+  border: "#D8DCE3",
+  divider: "#EAECF0",
+  inputBorder: "#8A94A6",
+  chevron: "#B5BCC7",
+
+  scrim: "rgba(11, 31, 51, 0.55)",
+} as const;
+
+export const radius = {
+  sm: 6,
+  md: 10,
+  lg: 14,
+  pill: 999,
+} as const;
+
+export const spacing = {
+  xs: 4,
+  sm: 8,
+  md: 12,
+  lg: 16,
+  xl: 24,
+  xxl: 32,
+} as const;
+
+/**
+ * Type scale. `as const` matters: without it `fontWeight` widens to `string`
+ * and TypeScript rejects the spread into a TextStyle.
+ *
+ * `tabular` is for clock times, so digits line up in the week table columns.
+ */
+export const type = {
+  h1: { fontSize: 28, fontWeight: "700" },
+  h2: { fontSize: 22, fontWeight: "700" },
+  title: { fontSize: 17, fontWeight: "600" },
+  body: { fontSize: 15, fontWeight: "400" },
+  label: { fontSize: 13, fontWeight: "600", letterSpacing: 0.6 },
+  caption: { fontSize: 12, fontWeight: "400" },
+  tabular: { fontVariant: ["tabular-nums"] },
+} as const satisfies Record<string, TextStyle>;
+
+/** Spread these — unlike the old `shadow` export, they are real shadows. */
+export const elevation = {
+  card: {
+    shadowColor: "#0B1F33",
+    shadowOpacity: 0.06,
     shadowRadius: 8,
     shadowOffset: { width: 0, height: 2 },
     elevation: 2,
-  }
-
-export const Fonts = Platform.select({
-  ios: {
-    /** iOS `UIFontDescriptorSystemDesignDefault` */
-    sans: 'system-ui',
-    /** iOS `UIFontDescriptorSystemDesignSerif` */
-    serif: 'ui-serif',
-    /** iOS `UIFontDescriptorSystemDesignRounded` */
-    rounded: 'ui-rounded',
-    /** iOS `UIFontDescriptorSystemDesignMonospaced` */
-    mono: 'ui-monospace',
   },
-  default: {
-    sans: 'normal',
-    serif: 'serif',
-    rounded: 'normal',
-    mono: 'monospace',
+  header: {
+    shadowColor: "#0B1F33",
+    shadowOpacity: 0.12,
+    shadowRadius: 6,
+    shadowOffset: { width: 0, height: 3 },
+    elevation: 4,
   },
-  web: {
-    sans: "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif",
-    serif: "Georgia, 'Times New Roman', serif",
-    rounded: "'SF Pro Rounded', 'Hiragino Maru Gothic ProN', Meiryo, 'MS PGothic', sans-serif",
-    mono: "SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace",
-  },
-});
+} as const;

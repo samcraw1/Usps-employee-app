@@ -2,14 +2,18 @@ import { useState } from "react";
 import {
   KeyboardAvoidingView,
   Platform,
-  Pressable,
   StyleSheet,
   Text,
-  TextInput,
   View,
 } from "react-native";
 import { useRouter } from "expo-router";
-import { Palette, shadow } from "../constants/theme";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+
+import { Banner } from "@/components/ui/banner";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Field } from "@/components/ui/field";
+import { Palette, spacing, type } from "@/constants/theme";
 
 // Mirrors the hardcoded pair in the old Swing Main.java. Replace with a real
 // call to the backend before this goes anywhere near a device.
@@ -18,6 +22,7 @@ const VALID_PASSWORD = "12345";
 
 export default function SignIn() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -33,45 +38,46 @@ export default function SignIn() {
 
   return (
     <KeyboardAvoidingView
-      style={styles.container}
+      style={[
+        styles.container,
+        { paddingTop: insets.top + spacing.xl, paddingBottom: insets.bottom + spacing.xl },
+      ]}
       behavior={Platform.OS === "ios" ? "padding" : undefined}
     >
-      <View style={styles.card}>
-        <Text style={styles.title}>Sign In</Text>
+      {/* Full-bleed brand blue: this is the one screen that is pure identity,
+          so the wordmark carries it rather than a header bar. */}
+      <View style={styles.brand}>
+        <Text style={styles.brandMark}>USPS</Text>
+        <Text style={styles.brandSub}>Employee Portal</Text>
+      </View>
 
-        <Text style={styles.label}>Username</Text>
-        <TextInput
-          style={styles.input}
+      <Card style={styles.card}>
+        <Text style={styles.title}>Sign in</Text>
+
+        <Field
+          label="Username"
           value={username}
           onChangeText={setUsername}
           autoCapitalize="none"
           autoCorrect={false}
           placeholder="Username"
-          placeholderTextColor={Palette.textMuted}
         />
 
-        <Text style={styles.label}>Password</Text>
-        <TextInput
-          style={styles.input}
+        <Field
+          label="Password"
           value={password}
           onChangeText={setPassword}
           secureTextEntry
           autoCapitalize="none"
           placeholder="Password"
-          placeholderTextColor={Palette.textMuted}
           onSubmitEditing={handleLogin}
           returnKeyType="go"
         />
 
-        {error ? <Text style={styles.error}>{error}</Text> : null}
+        {error ? <Banner tone="error" message={error} /> : null}
 
-        <Pressable
-          style={({ pressed }) => [styles.button, pressed && styles.buttonPressed]}
-          onPress={handleLogin}
-        >
-          <Text style={styles.buttonText}>Login</Text>
-        </Pressable>
-      </View>
+        <Button label="Log in" onPress={handleLogin} />
+      </Card>
     </KeyboardAvoidingView>
   );
 }
@@ -80,55 +86,29 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: "center",
-    padding: 24,
-    backgroundColor: Palette.background,
+    paddingHorizontal: spacing.xl,
+    backgroundColor: Palette.blue,
+  },
+  brand: {
+    alignItems: "center",
+    marginBottom: spacing.xxl,
+  },
+  brandMark: {
+    fontSize: 34,
+    fontWeight: "800",
+    letterSpacing: 2,
+    color: Palette.textOnBlue,
+  },
+  brandSub: {
+    ...type.label,
+    color: Palette.textOnBlueMuted,
+    marginTop: spacing.xs,
   },
   card: {
-    padding: 24,
-    borderWidth: 1,
-    borderColor: Palette.border,
-    borderRadius: shadow.shadowRadius,
-    backgroundColor: Palette.card,
+    gap: spacing.lg,
   },
   title: {
-    fontSize: 22,
-    fontWeight: "600",
+    ...type.h2,
     color: Palette.text,
-    marginBottom: 20,
-  },
-  label: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: Palette.text,
-    marginBottom: 8,
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: Palette.border,
-    borderRadius: shadow.shadowRadius,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    fontSize: 14,
-    color: Palette.text,
-    marginBottom: 16,
-  },
-  error: {
-    fontSize: 14,
-    color: Palette.red,
-    marginBottom: 16,
-  },
-  button: {
-    backgroundColor: Palette.blue,
-    borderRadius: shadow.shadowRadius,
-    paddingVertical: 14,
-    alignItems: "center",
-  },
-  buttonPressed: {
-    opacity: 0.8,
-  },
-  buttonText: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: Palette.card,
   },
 });
