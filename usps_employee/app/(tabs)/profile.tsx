@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
+import ProfileIconProp from "../../components/ui/ProfileIconProp";
 import {
   Modal,
   Pressable,
@@ -17,6 +18,8 @@ type EmployeeResponse = {
   id: number;
   name: string;
 };
+
+
 
 export default function Profile() {
   const router = useRouter();
@@ -42,7 +45,7 @@ export default function Profile() {
   };
 
   const changePassword = () => {
-    if (!newPassword) {
+    if (!newPassword.trim()) {
       setStatus("Enter a new password first.");
       return;
     }
@@ -69,7 +72,15 @@ export default function Profile() {
       });
   };
 
-useEffect(() => {
+  const handleNotifications = () => {
+    console.log("Notifications button pressed");
+  };
+
+  const handleHelp = () => {
+    console.log("Help button pressed");
+  };
+
+  useEffect(() => {
     // Guards against setting state after the screen unmounts, which happens
     // if you tab away before the request lands.
     let cancelled = false;
@@ -101,9 +112,11 @@ useEffect(() => {
     <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
       <View style={styles.container}>
         <Text style={styles.title}>Profile </Text>
-        <Text style={styles.label}>Username: {username}</Text>
+        <ProfileIconProp />
+        <Text style={styles.username}>Username: {username}</Text>
         {error ? <Text style={styles.error}>{error}</Text> : null}
 
+      <View style={styles.actions}>
         <Pressable
           style={({ pressed }) => [styles.button, pressed && styles.buttonPressed]}
           onPress={openPrompt}
@@ -116,6 +129,19 @@ useEffect(() => {
         >
           <Text style={styles.buttonText}>Log Out</Text>
         </Pressable>
+         <Pressable
+          style={({ pressed }) => [styles.button, pressed && styles.buttonPressed]}
+          onPress={handleNotifications}
+        >
+          <Text style={styles.buttonText}>Notifications</Text>
+        </Pressable>
+        <Pressable
+          style={({ pressed }) => [styles.button, pressed && styles.buttonPressed]}
+          onPress={handleHelp}
+        >
+          <Text style={styles.buttonText}>Help</Text>
+        </Pressable>
+        </View>
       </View>
 
       <Modal
@@ -234,4 +260,15 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     color: Palette.card,
   },
+  username: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: Palette.text,
+    marginBottom: 8,
+    textAlign: "center",
+  },
+  actions: {
+    gap: 12,
+  },
+
 });
