@@ -1,0 +1,58 @@
+/**
+ * USPS palette. Hex values match the mobile app's
+ * usps_employee/constants/theme.ts so both surfaces read as one product.
+ *
+ * Use them with var(), e.g.  .card { background: var(--card); }
+ */
+:root {
+  /* Surfaces */
+  --background: #f2f4f7;
+  --card: #ffffff;
+
+  /* Text */
+  --foreground: #1a1a1a;
+  --muted-foreground: #4b5563;
+  --on-blue: #ffffff;
+  --on-blue-muted: #c7d8e6;
+
+  /* Lines */
+  --border: #d8dce3;
+  --divider: #eaecf0;
+
+  /* Brand */
+  --primary: #004b87;
+  --primary-dark: #00365f;
+  --primary-tint: #e7eef5;
+  --destructive: #da291c;
+
+  /* Shift status: text color paired with a tint for badge backgrounds */
+  --status-on-duty: #004b87;
+  --status-on-duty-tint: #e7eef5;
+  --status-late: #b45309;
+  --status-late-tint: #fef3c7;
+  --status-alert: #da291c;
+  --status-alert-tint: #fdecea;
+  --status-ns: #4b5563;
+  --status-ns-tint: #eef0f3;
+
+  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  color: var(--foreground);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  margin: 0;
+  background: var(--background);
+}
+
+/**
+ * Flex column down the whole app, so .app-body can take the leftover height
+ * with flex:1 — the sidebar then stretches to the bottom of the viewport
+ * without hardcoding the header's height in a calc().
+ */
+#root {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
